@@ -179,7 +179,7 @@ if __name__ == "__main__":
     # 入力画面ラベルの設定
     result_frame = tk.Frame(result_tab,pady=10)
     result_frame.pack()
-    tree = ttk.Treeview(result_frame)
+    tree = ttk.Treeview(result_frame, height=16) # to change height of treeview
     tree["columns"] = (1,2,3,4,5,6)
     tree["show"] = "headings"
     
