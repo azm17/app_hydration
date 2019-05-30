@@ -15,6 +15,7 @@ server_port=0
 user_name=''
 user_pass=''
 database_name=''
+#database_name='hydration_db'
 
 def kakunin(login_id,login_pass,port,host,db_name):
     global user_name
@@ -38,7 +39,8 @@ def kakunin(login_id,login_pass,port,host,db_name):
         password = user_pass,
         database = database_name,
     )
-    connected = conn.is_connected()    
+    connected = conn.is_connected()
+    print(connected)
     return connected
     
 def sql_data_send(weight_after,weight_before,contents,time,moisture):
@@ -58,10 +60,8 @@ def sql_data_send(weight_after,weight_before,contents,time,moisture):
     
     tmp_day=datetime.date.today()
     day=tmp_day.strftime('%Y-%m-%d')
-    cur.execute('''INSERT INTO `'''+user_name
-                +'''` (`day`, `weight_after`, `weight_before`, `contents`,`time`,`moisture`) 
-                VALUES ('{}',{},{},'{}',{},{})'''
-                .format(day,weight_after,weight_before,contents,time,moisture))
+    cur.execute('''INSERT INTO `{}` (`day`, `weight_after`, `weight_before`, `contents`,`time`,`moisture`) 
+                VALUES ('{}',{},{},'{}',{},{})'''.format(user_name,day,weight_after,weight_before,contents,time,moisture))
     
     conn.commit()
     cur.close()
@@ -69,7 +69,7 @@ def sql_data_send(weight_after,weight_before,contents,time,moisture):
     
     return  data_list
 
-def sql_data_get():
+def sql_data_get(name):
     conn = mysql.connector.connect(
         host = server_host,
         port = server_port,
@@ -82,7 +82,7 @@ def sql_data_get():
     
     if (not connected):
         conn.ping(True)
-    cur.execute('''SELECT * FROM  azm ''')
+    cur.execute('''SELECT * FROM `{}` '''.format(name))
     
     data_list=[]
     for row in cur.fetchall():
@@ -95,10 +95,9 @@ def sql_data_get():
     
     return  data_list
 
-
 """
 CREATE TABLE `db_test0518`.`azm` ( `day` DATE NOT NULL , `weight_after` FLOAT NOT NULL , `weight_before` FLOAT NOT NULL , `contents` TEXT NOT NULL , `time` FLOAT NOT NULL , `moisture` FLOAT NOT NULL ) ENGINE = InnoDB;
-
+CREATE TABLE `hydration_db`.`hara` ( `day` DATE NOT NULL , `weight_after` FLOAT NOT NULL , `weight_before` FLOAT NOT NULL , `contents` TEXT NOT NULL , `time` FLOAT NOT NULL , `moisture` FLOAT NOT NULL ) ENGINE = InnoDB;
 """
 
 #--Written By Mutsuyo-----------------------------------

@@ -4,14 +4,6 @@ Created on Mon May 27 22:44:20 2019
 
 @author: Azumi Mamiya
 """
-
-# -*- coding: utf-8 -*-
-"""
-Created on Mon May 27 22:43:09 2019
-
-@author: Azumi Mamiya
-"""
-
 import tkinter as tk
 import tkinter.ttk as ttk
 import my_function as my_func
@@ -20,14 +12,13 @@ import datetime
 status=False # ログインしていれば，True,していなければ，False
 login_id =''
 login_pass =''
-server_host='192.168.0.31'
+server_host='192.168.2.111'
 server_port=3306
-database_name='db_test0518'
-
-
+database_name='hydration_db'
 
 def login():
     global status
+    global login_id
     login_id = id_entry.get()
     login_pass = pass_entry.get()
     try:
@@ -40,9 +31,11 @@ def login():
             login_message.set('IDまたはPASSが違います')
             tree.delete(*tree.get_children())#リストを消す
     except:
+        print('error')
         status=False
         login_message.set('IDまたはPASSが違います')
         tree.delete(*tree.get_children())#リストを消す
+    tree_insert()
 
 def send_data():#データをサーバーに送信する
     global status
@@ -51,8 +44,10 @@ def send_data():#データをサーバーに送信する
             wb=float(entry1_1.get())
             wa=float(entry1_2.get())
             text=entry1_3.get()
-            time=int(entry1_4.get())
+            time=float(entry1_4.get())
             amount=float(entry1_5.get())
+            if wb==0 or wa ==0 or time ==0 or amount==0:
+                raise ValueError("error!")
             input_message.set('** 結果を送信しました **')
             my_func.sql_data_send(wb,wa,text,time,amount)
             tree_insert()
@@ -71,10 +66,12 @@ def data_reform():#SQLからのデータをタプルに変換
     reformed_tuple_list=[]
     #data_tuple_list=[(datetime.date(2019, 5, 28), 60.0, 59.0, 'run', 60.0, 1.0),
     #                 (datetime.date(2019, 5, 28), 60.0, 59.0, 'run', 60.0, 1.0)]
-    data_tuple_list=my_func.sql_data_get()
+    data_tuple_list=my_func.sql_data_get(login_id)
     
-    for i in data_tuple_list[::-1]:
-        reformed_tuple_list.append((i[0],i[1],i[2],i[4],i[5],i[3]))
+    for i in data_tuple_list[::-1]:#(date0,before1,after2,training3,minute4,water5)
+        dassui_ristu=my_func.dassui_ritu(i[1],i[2])
+        dassui_ryo=round(i[1]-i[2],2)
+        reformed_tuple_list.append((i[0],i[3],i[1],i[2],dassui_ryo,dassui_ristu,i[5],i[4]))#
     
     return reformed_tuple_list
 
@@ -82,7 +79,7 @@ if __name__ == "__main__":
     # rootフレームの設定
     root = tk.Tk()
     root.title("デスクトップアプリ")
-    root.geometry("600x400")
+    root.geometry("800x400")
     
     # ノートブック
     nb = ttk.Notebook(width=400, height=400)
@@ -158,7 +155,7 @@ if __name__ == "__main__":
     # 運動時間のラベルとエントリーの設定
     frame1_4 = tk.Frame(tab1,pady=10)
     frame1_4.pack()
-    label1_5 = tk.Label(frame1_4,font=("",10),text="運動時間（分）  　　")
+    label1_5 = tk.Label(frame1_4,font=("",10),text="運動時間（h）  　　")
     label1_5.pack(side="left")
     entry1_4 = tk.Entry(frame1_4,font=("",10),justify="center",width=15)
     entry1_4.pack(side="left")
@@ -180,22 +177,28 @@ if __name__ == "__main__":
     result_frame = tk.Frame(result_tab,pady=10)
     result_frame.pack()
     tree = ttk.Treeview(result_frame, height=16) # to change height of treeview
-    tree["columns"] = (1,2,3,4,5,6)
+    tree["columns"] = (1,2,3,4,5,6,7,8)
     tree["show"] = "headings"
     
     tree.column(1,width=75)
-    tree.column(2,width=70)
-    tree.column(3,width=70)
-    tree.column(4,width=70)
-    tree.column(5,width=70)
+    tree.column(2,width=90)
+    tree.column(3,width=90)
+    tree.column(4,width=90)
+    tree.column(5,width=75)
     tree.column(6,width=70)
+    tree.column(7,width=70)
+    tree.column(8,width=70)
+    
     # 各列のヘッダー設定(インデックス,テキスト)
     tree.heading(1,text="日付")
-    tree.heading(2,text="運動前体重")
-    tree.heading(3,text="運動後体重")
-    tree.heading(4,text="運動時間")
-    tree.heading(5,text="水分摂取量")
-    tree.heading(6,text="トレーニング内容")
+    tree.heading(2,text="トレーニング内容")
+    tree.heading(3,text="運動前体重(kg)")
+    tree.heading(4,text="運動後体重(kg)")
+    tree.heading(5,text="脱水量(L)")
+    tree.heading(6,text="脱水率(%)")
+    tree.heading(7,text="水分摂取量")
+    tree.heading(8,text="運動時間(h)")
+
     
     
     
