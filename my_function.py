@@ -29,7 +29,7 @@ def kakunin(login_id,login_pass,port,host,db_name):
     server_port = port
     server_host = host
     database_name = db_name
-
+    
     user_name=login_id
     user_pass=login_pass
     conn = mysql.connector.connect(
@@ -60,8 +60,8 @@ def sql_data_send(weight_after,weight_before,contents,time,moisture):
     
     tmp_day=datetime.date.today()
     day=tmp_day.strftime('%Y-%m-%d')
-    cur.execute('''INSERT INTO `{}` (`day`, `weight_after`, `weight_before`, `contents`,`time`,`moisture`) 
-                VALUES ('{}',{},{},'{}',{},{})'''.format(user_name,day,weight_after,weight_before,contents,time,moisture))
+    cur.execute('''INSERT INTO `{}` (`day`, `weight_after`, `weight_before`, `contents`,`time`,`moisture`,`tenki`,`shitsudo`) 
+                VALUES ('{}',{},{},'{}',{},{},{},{})'''.format(user_name,day,weight_after,weight_before,contents,time,moisture,1,1))
     
     conn.commit()
     cur.close()
@@ -96,8 +96,10 @@ def sql_data_get(name):
     return  data_list
 
 """
-CREATE TABLE `db_test0518`.`azm` ( `day` DATE NOT NULL , `weight_after` FLOAT NOT NULL , `weight_before` FLOAT NOT NULL , `contents` TEXT NOT NULL , `time` FLOAT NOT NULL , `moisture` FLOAT NOT NULL ) ENGINE = InnoDB;
-CREATE TABLE `hydration_db`.`hara` ( `day` DATE NOT NULL , `weight_after` FLOAT NOT NULL , `weight_before` FLOAT NOT NULL , `contents` TEXT NOT NULL , `time` FLOAT NOT NULL , `moisture` FLOAT NOT NULL ) ENGINE = InnoDB;
+ユーザー作成
+１アカウントを作る
+２テーブルを自分の名前で作る
+CREATE TABLE `hydration_db`.`miyagawa` ( `day` DATE NOT NULL , `weight_after` FLOAT NOT NULL , `weight_before` FLOAT NOT NULL , `contents` TEXT NOT NULL , `time` FLOAT NOT NULL , `moisture` FLOAT NOT NULL, `tenki` FLOAT NOT NULL, `shitsudo` FLOAT NOT NULL ) ENGINE = InnoDB;
 """
 
 #--Written By Mutsuyo-----------------------------------

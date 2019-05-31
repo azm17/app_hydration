@@ -12,7 +12,7 @@ import datetime
 status=False # ログインしていれば，True,していなければ，False
 login_id =''
 login_pass =''
-server_host='192.168.2.111'
+server_host='192.168.0.32'
 server_port=3306
 database_name='hydration_db'
 
@@ -55,6 +55,7 @@ def send_data():#データをサーバーに送信する
             input_message.set('結果を送信できませんでした。\n情報を正しく入力してください。')
     else:
         input_message.set('ログインしてください')
+    
 
 def tree_insert():#データを結果に表示
     tree.delete(*tree.get_children())
