@@ -46,10 +46,23 @@ def send_data():#データをサーバーに送信する
             text=entry1_3.get()
             time=float(entry1_4.get())
             amount=float(entry1_5.get())
-            if wb==0 or wa ==0 or time ==0 or amount==0:
+            shitsudo=float(entry1_shitsudo.get())
+            tenki=int(flg1.get())
+            
+            
+            if wb==0 or wa ==0 or time ==0 or amount==0 or tenki==int(5):
                 raise ValueError("error!")
+            else:
+                entry1_1.delete(0, tk.END)
+                entry1_2.delete(0, tk.END)
+                entry1_3.delete(0, tk.END)
+                entry1_4.delete(0, tk.END)
+                entry1_5.delete(0, tk.END)
+                entry1_shitsudo.delete(0, tk.END)
+                flg1.set('5')#ボタン初期化
+            
             input_message.set('** 結果を送信しました **')
-            my_func.sql_data_send(wb,wa,text,time,amount)
+            my_func.sql_data_send(wb,wa,text,time,amount,tenki,shitsudo)
             tree_insert()
         except:
             input_message.set('結果を送信できませんでした。\n情報を正しく入力してください。')
@@ -69,10 +82,19 @@ def data_reform():#SQLからのデータをタプルに変換
     #                 (datetime.date(2019, 5, 28), 60.0, 59.0, 'run', 60.0, 1.0)]
     data_tuple_list=my_func.sql_data_get(login_id)
     
-    for i in data_tuple_list[::-1]:#(date0,before1,after2,training3,minute4,water5)
+    for i in data_tuple_list[::-1]:#(date0,before1,after2,training3,minute4,water5,tenki6,shitsudo7)
         dassui_ristu=my_func.dassui_ritu(i[1],i[2])
         dassui_ryo=round(i[1]-i[2],2)
-        reformed_tuple_list.append((i[0],i[3],i[1],i[2],dassui_ryo,dassui_ristu,i[5],i[4]))#
+        if i[6]==0:#天気
+            text='晴れ'
+        elif i[6]==1:
+            text='曇り'
+        elif i[6]==2:
+            text='雨'
+        else:
+            text='エラー'
+        
+        reformed_tuple_list.append((i[0],text,i[7],i[3],i[1],i[2],dassui_ryo,dassui_ristu,i[5],i[4]))
     
     return reformed_tuple_list
 
@@ -129,6 +151,37 @@ if __name__ == "__main__":
     label1_1.pack(fill="x")
     
     
+    # 運動後体重のラベルとエントリーの設定
+    frame1_3 = tk.Frame(tab1,pady=10)
+    frame1_3.pack()
+    label1_4 = tk.Label(frame1_3,font=("",10),text="トレーニング内容   ")
+    label1_4.pack(side="left")
+    entry1_3 = tk.Entry(frame1_3,font=("",10),justify="center",width=15)
+    entry1_3.pack(side="left")
+    
+    # 天気設定
+    flg1 = tk.StringVar()
+    flg1.set('5')#ボタン初期値
+    frame1_tenki = tk.Frame(tab1,pady=10)
+    frame1_tenki.pack()
+    label1_tenki = tk.Label(frame1_tenki,font=("",10),text="　　　　　　天気　　　   ")
+    label1_tenki.pack(side="left")
+    #entry1_tenki = tk.Entry(frame1_tenki,font=("",10),justify="center",width=15)
+    bt_tenki0 =tk.Radiobutton(frame1_tenki,text='晴れ',value=0,variable=flg1)
+    bt_tenki0.pack(side="left")
+    bt_tenki1 =tk.Radiobutton(frame1_tenki,text='くもり',value=1,variable=flg1)
+    bt_tenki1.pack(side="left")
+    bt_tenki2 =tk.Radiobutton(frame1_tenki,text='雨',value=2,variable=flg1)
+    bt_tenki2.pack(side="left")
+    
+    # 湿度の設定
+    frame1_shitsudo = tk.Frame(tab1,pady=10)
+    frame1_shitsudo.pack()
+    label1_shitsudo = tk.Label(frame1_shitsudo,font=("",10),text="　　 湿度　　　  　　")
+    label1_shitsudo.pack(side="left")
+    entry1_shitsudo = tk.Entry(frame1_shitsudo,font=("",10),justify="center",width=15)
+    entry1_shitsudo.pack(side="left")
+    
     # 水分摂取量とエントリーの設定
     frame1_1 = tk.Frame(tab1,pady=10)
     frame1_1.pack()
@@ -144,14 +197,6 @@ if __name__ == "__main__":
     label1_3.pack(side="left")
     entry1_2 = tk.Entry(frame1_2,font=("",10),justify="center",width=15)
     entry1_2.pack(side="left")
-    
-    # 運動後体重のラベルとエントリーの設定
-    frame1_3 = tk.Frame(tab1,pady=10)
-    frame1_3.pack()
-    label1_4 = tk.Label(frame1_3,font=("",10),text="トレーニング内容   ")
-    label1_4.pack(side="left")
-    entry1_3 = tk.Entry(frame1_3,font=("",10),justify="center",width=15)
-    entry1_3.pack(side="left")
     
     # 運動時間のラベルとエントリーの設定
     frame1_4 = tk.Frame(tab1,pady=10)
@@ -178,30 +223,31 @@ if __name__ == "__main__":
     result_frame = tk.Frame(result_tab,pady=10)
     result_frame.pack()
     tree = ttk.Treeview(result_frame, height=16) # to change height of treeview
-    tree["columns"] = (1,2,3,4,5,6,7,8)
+    tree["columns"] = (1,2,3,4,5,6,7,8,9,10)
     tree["show"] = "headings"
     
     tree.column(1,width=75)
-    tree.column(2,width=90)
-    tree.column(3,width=90)
+    tree.column(2,width=50)
+    tree.column(3,width=50)
     tree.column(4,width=90)
-    tree.column(5,width=75)
-    tree.column(6,width=70)
+    tree.column(5,width=90)
+    tree.column(6,width=90)
     tree.column(7,width=70)
     tree.column(8,width=70)
+    tree.column(9,width=70)
+    tree.column(10,width=70)
     
     # 各列のヘッダー設定(インデックス,テキスト)
     tree.heading(1,text="日付")
-    tree.heading(2,text="トレーニング内容")
-    tree.heading(3,text="運動前体重(kg)")
-    tree.heading(4,text="運動後体重(kg)")
-    tree.heading(5,text="脱水量(L)")
-    tree.heading(6,text="脱水率(%)")
-    tree.heading(7,text="水分摂取量")
-    tree.heading(8,text="運動時間(h)")
-
-    
-    
+    tree.heading(2,text="天気")
+    tree.heading(3,text="湿度")
+    tree.heading(4,text="トレーニング内容")
+    tree.heading(5,text="運動前体重(kg)")
+    tree.heading(6,text="運動後体重(kg)")
+    tree.heading(7,text="脱水量(L)")
+    tree.heading(8,text="脱水率(%)")
+    tree.heading(9,text="水分摂取量")
+    tree.heading(10,text="運動時間(h)")
     
     scroll2_1 = tk.Scrollbar(result_frame, orient = 'v', command = tree.yview)
     

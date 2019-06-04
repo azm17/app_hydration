@@ -43,7 +43,7 @@ def kakunin(login_id,login_pass,port,host,db_name):
     print(connected)
     return connected
     
-def sql_data_send(weight_after,weight_before,contents,time,moisture):
+def sql_data_send(weight_after,weight_before,contents,time,moisture,tenki,shitsudo):
     data_list=[]
     conn = mysql.connector.connect(
         host = server_host,
@@ -61,7 +61,7 @@ def sql_data_send(weight_after,weight_before,contents,time,moisture):
     tmp_day=datetime.date.today()
     day=tmp_day.strftime('%Y-%m-%d')
     cur.execute('''INSERT INTO `{}` (`day`, `weight_after`, `weight_before`, `contents`,`time`,`moisture`,`tenki`,`shitsudo`) 
-                VALUES ('{}',{},{},'{}',{},{},{},{})'''.format(user_name,day,weight_after,weight_before,contents,time,moisture,1,1))
+                VALUES ('{}',{},{},'{}',{},{},{},{})'''.format(user_name,day,weight_after,weight_before,contents,time,moisture,tenki,shitsudo))
     
     conn.commit()
     cur.close()
