@@ -16,14 +16,73 @@ server_host='192.168.0.32'
 server_port=3306
 database_name='hydration_db'
 
+#login_message = tk.StringVar()
+id_entry = None
+pass_entry = None
+sub_win = None
+
+def sub_window():
+    global sub_win
+    global id_entry
+    global pass_entry
+    global sub_win
+
+    #サブウィンドウ生成
+    sub_win = tk.Toplevel()
+    #サブウィンドウの画面サイズ
+    sub_win.geometry("300x200")
+
+    # ラベル
+    #global login_message
+    login_message = tk.StringVar()
+    login_message.set('IDとPASSを入力してください')
+    login_label = tk.Label(sub_win,textvariable=login_message,font=("",10),height=2)
+    login_label.pack(fill="x")
+
+    # エントリー
+    id_frame = tk.Frame(sub_win,pady=10)
+    id_frame.pack()
+    id_label = tk.Label(id_frame,font=("",10),text="  ID   ")
+    id_label.pack(side="left")
+    id_entry = tk.Entry(id_frame,font=("",10),justify="center",width=15)
+    id_entry.pack(side="left")
+    
+    pass_frame = tk.Frame(sub_win,pady=10)
+    pass_frame.pack()
+    pass_label = tk.Label(pass_frame,font=("",10),text="PASS")
+    pass_label.pack(side="left")
+    pass_entry = tk.Entry(pass_frame,font=("",10),justify="center",width=15, show='*')
+    pass_entry.pack(side="left")
+
+    # ログインボタン
+    login_button = tk.Button(sub_win,bg="gray",text="ログイン",font=("",10),width=7,command=login)
+    login_button.pack()
+
+    '''
+    #Button生成
+    button = tk.Button(\
+            sub_win,\
+            bg="gray",\
+            text = '閉じる',\
+            width = str('閉じる'),\
+            command = sub_win.destroy\
+            )
+    button.pack()
+    '''
+
 def login():
     global status
     global login_id
+    global id_entry
+    global pass_entry
+    global sub_win
+
     login_id = id_entry.get()
     login_pass = pass_entry.get()
     try:
         if my_func.kakunin(login_id,login_pass,server_port,server_host,database_name)==True:
-            login_message.set(login_id+'さん、こんにちは。ログイン中です。')
+            sub_win.destroy()
+            home_message.set(login_id+'さん、こんにちは。ログイン中です。')
             status=True
             tree_insert()
         else:
@@ -108,19 +167,25 @@ if __name__ == "__main__":
     nb = ttk.Notebook(width=400, height=400)
     
     # タブの作成
-    login_tab = tk.Frame(nb)
+    home_tab = tk.Frame(nb)
     tab1 = tk.Frame(nb)
     result_tab = tk.Frame(nb)
     tab3 = tk.Frame(nb)
     
     
-    nb.add(login_tab, text='ログイン', padding=3)
+    nb.add(home_tab, text='ホーム', padding=3)
     nb.add(tab1, text='入力', padding=3)
     nb.add(result_tab, text='表示', padding=3)
     nb.add(tab3, text='コメント', padding=3)
     nb.pack(expand=1, fill='both')
 
-    #login_tab
+    #home_tab
+    home_message = tk.StringVar()
+    home_message.set('ようこそ\nログインしてください')
+    home_label = tk.Label(home_tab,textvariable=home_message,font=("",10),height=2)
+    home_label.pack(fill="x")
+
+    '''
     login_message = tk.StringVar()
     login_message.set('IDとPASSを入力してください')
     login_label = tk.Label(login_tab,textvariable=login_message,font=("",10),height=2)
@@ -139,8 +204,9 @@ if __name__ == "__main__":
     pass_label.pack(side="left")
     pass_entry = tk.Entry(pass_frame,font=("",10),justify="center",width=15, show='*')
     pass_entry.pack(side="left")
+    '''
     
-    login_button = tk.Button(login_tab,text="ログイン",font=("",10),width=7,bg="gray",command=login)
+    login_button = tk.Button(home_tab,text="ログイン",font=("",10),width=7,bg="gray",command=sub_window)
     login_button.pack()
     
     # input_tab
