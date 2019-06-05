@@ -20,6 +20,9 @@ database_name='hydration_db'
 id_entry = None
 pass_entry = None
 sub_win = None
+login_button = None
+home_message = None
+login_message = None
 
 def center(toplevel):
     toplevel.update_idletasks()
@@ -35,6 +38,7 @@ def sub_window():
     global id_entry
     global pass_entry
     global sub_win
+    global login_message
 
     #サブウィンドウ生成
     sub_win = tk.Toplevel()
@@ -86,6 +90,9 @@ def login():
     global id_entry
     global pass_entry
     global sub_win
+    global login_button
+    global home_message
+    global login_message
 
     login_id = id_entry.get()
     login_pass = pass_entry.get()
@@ -93,6 +100,9 @@ def login():
         if my_func.kakunin(login_id,login_pass,server_port,server_host,database_name)==True:
             sub_win.destroy()
             home_message.set(login_id+'さん、こんにちは。ログイン中です。')
+            login_button.destroy()
+            login_button = tk.Button(home_tab,text="ログアウト",font=("",10),width=7,bg="gray",command=logout)
+            login_button.pack()
             status=True
             tree_insert()
         else:
@@ -105,6 +115,21 @@ def login():
         login_message.set('IDまたはPASSが違います')
         tree.delete(*tree.get_children())#リストを消す
     tree_insert()
+
+def logout():
+    global login_id
+    global login_pass
+    global login_button
+    global home_message
+
+    login_id = ''
+    login_pass = ''
+
+    home_message.set('ようこそ\nログインしてください')
+
+    login_button.destroy()
+    login_button = tk.Button(home_tab,text="ログイン",font=("",10),width=7,bg="gray",command=sub_window)
+    login_button.pack()
 
 def send_data():#データをサーバーに送信する
     global status
@@ -154,6 +179,9 @@ def data_reform():#SQLからのデータをタプルに変換
     for i in data_tuple_list[::-1]:#(date0,before1,after2,training3,minute4,water5,tenki6,shitsudo7)
         dassui_ristu=my_func.dassui_ritu(i[1],i[2])
         dassui_ryo=round(i[1]-i[2],2)
+        tenki_list = ['晴れ', '曇り', '雨', 'エラー']
+        text = tenki_list[int(i[6])]
+        '''
         if i[6]==0:#天気
             text='晴れ'
         elif i[6]==1:
@@ -162,6 +190,7 @@ def data_reform():#SQLからのデータをタプルに変換
             text='雨'
         else:
             text='エラー'
+        '''
         
         reformed_tuple_list.append((i[0],text,i[7],i[3],i[1],i[2],dassui_ryo,dassui_ristu,i[5],i[4]))
     
