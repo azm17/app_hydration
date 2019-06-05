@@ -21,6 +21,15 @@ id_entry = None
 pass_entry = None
 sub_win = None
 
+def center(toplevel):
+    toplevel.update_idletasks()
+    w = toplevel.winfo_screenwidth()
+    h = toplevel.winfo_screenheight()
+    size = tuple(int(_) for _ in toplevel.geometry().split('+')[0].split('x'))
+    x = w/2 - size[0]/2
+    y = h/2 - size[1]/2
+    toplevel.geometry("%dx%d+%d+%d" % (size + (x, y)))
+
 def sub_window():
     global sub_win
     global id_entry
@@ -31,6 +40,7 @@ def sub_window():
     sub_win = tk.Toplevel()
     #サブウィンドウの画面サイズ
     sub_win.geometry("300x200")
+    center(sub_win)
 
     # ラベル
     #global login_message
@@ -162,6 +172,7 @@ if __name__ == "__main__":
     root = tk.Tk()
     root.title("デスクトップアプリ")
     root.geometry("800x400")
+    center(root)
     
     # ノートブック
     nb = ttk.Notebook(width=400, height=400)
