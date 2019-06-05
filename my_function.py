@@ -41,6 +41,7 @@ def kakunin(login_id,login_pass,port,host,db_name):
     )
     connected = conn.is_connected()
     print(connected)
+    conn.close()
     return connected
     
 def sql_data_send(weight_after,weight_before,contents,time,moisture,tenki,shitsudo):

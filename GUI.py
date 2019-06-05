@@ -49,7 +49,6 @@ def send_data():#データをサーバーに送信する
             shitsudo=float(entry1_shitsudo.get())
             tenki=int(flg1.get())
             
-            
             if wb==0 or wa ==0 or time ==0 or amount==0 or tenki==int(5):
                 raise ValueError("error!")
             else:
