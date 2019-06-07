@@ -84,8 +84,8 @@ def sub_window():
     button.pack()
     '''
 
-def login():
-    global status
+def login():#ログイン処理
+    global status #
     global login_id
     global id_entry
     global pass_entry
@@ -94,19 +94,20 @@ def login():
     global home_message
     global login_message
 
-    login_id = id_entry.get()
-    login_pass = pass_entry.get()
+    login_id = id_entry.get() #GUIから入力されたID
+    login_pass = pass_entry.get() #GUIから入力されたPASS
     try:
+        #入力されたIDやPASSが正しいか確認
         if my_func.kakunin(login_id,login_pass,server_port,server_host,database_name)==True:
             sub_win.destroy()
             home_message.set(login_id+'さん、こんにちは。ログイン中です。')
             login_button.destroy()
             login_button = tk.Button(home_tab,text="ログアウト",font=("",10),width=7,bg="gray",command=logout)
             login_button.pack()
-            status=True
+            status=True#IDまたはPASSが正しい
             tree_insert()
         else:
-            status=False
+            status=False#IDまたはPASSが正しくない
             login_message.set('IDまたはPASSが違います')
             tree.delete(*tree.get_children())#リストを消す
     except:
@@ -116,14 +117,14 @@ def login():
         tree.delete(*tree.get_children())#リストを消す
     tree_insert()
 
-def logout():
+def logout():#ログアウト処理
     global login_id
     global login_pass
     global login_button
     global home_message
 
-    login_id = ''
-    login_pass = ''
+    login_id = ''   # 情報を消す
+    login_pass = '' # 情報を消す
 
     home_message.set('ようこそ\nログインしてください')
 
@@ -131,11 +132,11 @@ def logout():
     login_button = tk.Button(home_tab,text="ログイン",font=("",10),width=7,bg="gray",command=sub_window)
     login_button.pack()
 
-def send_data():#データをサーバーに送信する
+def send_data():#入力データをサーバーに送信
     global status
     if status:
         try:
-            wb=float(entry1_1.get())
+            wb=float(entry1_1.get())# 型変換
             wa=float(entry1_2.get())
             text=entry1_3.get()
             time=float(entry1_4.get())
@@ -147,17 +148,18 @@ def send_data():#データをサーバーに送信する
             if wb==0 or wa ==0 or time ==0 or amount==0 or tenki==int(5):
                 raise ValueError("error!")
             else:
-                entry1_1.delete(0, tk.END)
+                entry1_1.delete(0, tk.END)# 入力された文字を消す
                 entry1_2.delete(0, tk.END)
                 entry1_3.delete(0, tk.END)
                 entry1_4.delete(0, tk.END)
                 entry1_5.delete(0, tk.END)
                 entry1_shitsudo.delete(0, tk.END)
-                flg1.set('5')#ボタン初期化
+                flg1.set('5')#ボタン初期化 5は適当，0,1,2以外の数字
             
             input_message.set('** 結果を送信しました **')
+            #SQLサーバーにデータを送信
             my_func.sql_data_send(wb,wa,text,time,amount,tenki,shitsudo)
-            tree_insert()
+            tree_insert()# リストの更新
         except:
             input_message.set('結果を送信できませんでした。\n情報を正しく入力してください。')
     else:
@@ -170,13 +172,26 @@ def tree_insert():#データを結果に表示
     for data in data_list:
         tree.insert("","end",values=data)
 
+def tree_insert_ID():
+    tree_user.delete(*tree_user.get_children())
+    data_list=[('azumi'),('miyagawa')]
+    for data in data_list:
+        tree_user.insert("","end",values=data)
+
 def data_reform():#SQLからのデータをタプルに変換
     reformed_tuple_list=[]
-    #data_tuple_list=[(datetime.date(2019, 5, 28), 60.0, 59.0, 'run', 60.0, 1.0),
-    #                 (datetime.date(2019, 5, 28), 60.0, 59.0, 'run', 60.0, 1.0)]
+    # ex)
+    # data_tuple_list=[(datetime.date(2019, 5, 28), 60.0, 59.0, 'run', 60.0, 1.0,1,10.0),
+    #                  (datetime.date(2019, 5, 28), 60.0, 59.0, 'run', 60.0, 1.0,1,10.0)]
+    #
+    # (date0,before1,after2,training3,minute4,water5,tenki6,shitsudo7) #数字はリスト番号
+    # date:日付,before1:運動前体重,after2:運動後体重,training3:トレーニング内容,
+    # minute4:運動時間,water5:水分補給量,tenki6:天気,shitsudo7:湿度
+    #
+    
     data_tuple_list=my_func.sql_data_get(login_id)
     
-    for i in data_tuple_list[::-1]:#(date0,before1,after2,training3,minute4,water5,tenki6,shitsudo7)
+    for i in data_tuple_list[::-1]:
         dassui_ristu=my_func.dassui_ritu(i[1],i[2])
         dassui_ryo=round(i[1]-i[2],2)
         tenki_list = ['晴れ', '曇り', '雨', 'エラー']
@@ -210,15 +225,15 @@ if __name__ == "__main__":
     home_tab = tk.Frame(nb)
     tab1 = tk.Frame(nb)
     result_tab = tk.Frame(nb)
-    tab3 = tk.Frame(nb)
+    admin_tab = tk.Frame(nb)
     
     
     nb.add(home_tab, text='ホーム', padding=3)
     nb.add(tab1, text='入力', padding=3)
     nb.add(result_tab, text='表示', padding=3)
-    nb.add(tab3, text='コメント', padding=3)
+    nb.add(admin_tab, text='管理', padding=3)
     nb.pack(expand=1, fill='both')
-
+    
     #home_tab
     home_message = tk.StringVar()
     home_message.set('ようこそ\nログインしてください')
@@ -324,7 +339,7 @@ if __name__ == "__main__":
     button1_5 = tk.Button(tab1,text="送信",font=("",10),width=5,bg="gray",command=send_data)
     button1_5.pack()
     
-    ## タブ2
+    ## 表示 タブ
     # 入力画面ラベルの設定
     result_frame = tk.Frame(result_tab,pady=10)
     result_frame.pack()
@@ -365,6 +380,43 @@ if __name__ == "__main__":
     scroll2_1.grid(row = 1, column = 1, sticky = 'ns')
     # ツリービューの配置
     
+    input_message = tk.StringVar()
+    input_message.set('新しいアカウント作成')
+    label1_1 = tk.Label(admin_tab,textvariable=input_message,font=("",15),height=2)
+    label1_1.pack(fill="x")
+    # 管理タブ
+    frame_id = tk.Frame(admin_tab,pady=10)
+    frame_id.pack()
+    label_new_id = tk.Label(frame_id,font=("",10),text="新しいユーザーID ")
+    label_new_id.pack()
+    entry_new_id = tk.Entry(frame_id,font=("",10),justify="center",width=15)
+    entry_new_id.pack()
+    
+    label_new_pass = tk.Label(frame_id,font=("",10),text="新しいパスワード ")
+    label_new_pass.pack()
+    entry_new_pass = tk.Entry(frame_id,font=("",10),justify="center",width=15)
+    entry_new_pass.pack()
+    
+    button1_5 = tk.Button(frame_id,text="作成",font=("",10),width=5,bg="gray",command=tree_insert_ID)
+    button1_5.pack()
+    
+    frame_user_list = tk.Frame(frame_id,pady=10)
+    frame_user_list.pack()
+    tree_user = ttk.Treeview(frame_user_list, height=10) # to change height of treeview
+    tree_user["columns"] = (1)
+    tree_user["show"] = "headings"
+    
+    tree_user.column(1,width=75)
+    #tree_user.column(2,width=50)
+    
+    tree_user.heading(1,text="ID")
+    #tree_user.heading(2,text="天気")
+    
+    scroll_user = tk.Scrollbar(frame_user_list, orient = 'v', command = tree.yview)
+    
+    tree_user.configure(yscrollcommand = scroll_user.set)
+    tree_user.grid(row = 1, column = 0, sticky = 'ns')
+    scroll_user.grid(row = 1, column = 1, sticky = 'ns')
     
     # メインループ
     root.mainloop()
